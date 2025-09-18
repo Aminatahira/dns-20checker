@@ -1,62 +1,268 @@
-import { DemoResponse } from "@shared/api";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
+import { ALL_TYPES, type DnsRecordType } from "@/features/dns/types";
+import { resolveDns, bulkResolve, whois } from "@/features/dns/api";
 
 export default function Index() {
-  const [exampleFromServer, setExampleFromServer] = useState("");
-  // Fetch users on component mount
-  useEffect(() => {
-    fetchDemo();
-  }, []);
+  const [domain, setDomain] = useState("example.com");
+  const [selectedTypes, setSelectedTypes] = useState<DnsRecordType[]>(["A", "AAAA", "MX", "TXT", "NS"]);
+  const [provider, setProvider] = useState<"system" | "cloudflare" | "google">("system");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<any | null>(null);
+  const [jsonView, setJsonView] = useState(false);
+  const [whoisData, setWhoisData] = useState<string | null>(null);
 
-  // Example of how to fetch data from the server (if needed)
-  const fetchDemo = async () => {
+  const [bulkInput, setBulkInput] = useState("google.com\ncloudflare.com\nopenai.com");
+  const [bulkLoading, setBulkLoading] = useState(false);
+  const [bulkResult, setBulkResult] = useState<any | null>(null);
+
+  const allChecked = useMemo(
+    () => selectedTypes.length === ALL_TYPES.length,
+    [selectedTypes],
+  );
+  const toggleAll = (checked: boolean) => {
+    setSelectedTypes(checked ? [...ALL_TYPES] as DnsRecordType[] : []);
+  };
+  const toggleType = (t: DnsRecordType, checked: boolean) => {
+    setSelectedTypes((prev) => checked ? Array.from(new Set([...prev, t])) as DnsRecordType[] : prev.filter((x) => x !== t));
+  };
+
+  const runLookup = async () => {
+    if (!domain) return;
+    setLoading(true);
+    setWhoisData(null);
     try {
-      const response = await fetch("/api/demo");
-      const data = (await response.json()) as DemoResponse;
-      setExampleFromServer(data.message);
-    } catch (error) {
-      console.error("Error fetching hello:", error);
+      const data = await resolveDns({ domain, types: selectedTypes, provider });
+      setResult(data);
+    } catch (e) {
+      setResult({ error: String((e as any)?.message || e) });
+    } finally {
+      setLoading(false);
+    }
+  };
+  const runWhois = async () => {
+    if (!domain) return;
+    setLoading(true);
+    try {
+      const data = await whois(domain);
+      setWhoisData(data.raw);
+    } catch (e) {
+      setWhoisData(String((e as any)?.message || e));
+    } finally {
+      setLoading(false);
+    }
+  };
+  const runBulk = async () => {
+    const domains = bulkInput.split(/\s+/).map((d) => d.trim()).filter(Boolean);
+    if (!domains.length) return;
+    setBulkLoading(true);
+    try {
+      const data = await bulkResolve({ domains, types: selectedTypes, provider });
+      setBulkResult(data);
+    } catch (e) {
+      setBulkResult({ error: String((e as any)?.message || e) });
+    } finally {
+      setBulkLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
-      <div className="text-center">
-        {/* TODO: FUSION_GENERATION_APP_PLACEHOLDER replace everything here with the actual app! */}
-        <h1 className="text-2xl font-semibold text-slate-800 flex items-center justify-center gap-3">
-          <svg
-            className="animate-spin h-8 w-8 text-slate-400"
-            viewBox="0 0 50 50"
-          >
-            <circle
-              className="opacity-30"
-              cx="25"
-              cy="25"
-              r="20"
-              stroke="currentColor"
-              strokeWidth="5"
-              fill="none"
-            />
-            <circle
-              className="text-slate-600"
-              cx="25"
-              cy="25"
-              r="20"
-              stroke="currentColor"
-              strokeWidth="5"
-              fill="none"
-              strokeDasharray="100"
-              strokeDashoffset="75"
-            />
-          </svg>
-          Generating your app...
-        </h1>
-        <p className="mt-4 text-slate-600 max-w-md">
-          Watch the chat on the left for updates that might need your attention
-          to finish generating
-        </p>
-        <p className="mt-4 hidden max-w-md">{exampleFromServer}</p>
-      </div>
+    <div className="relative">
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 -z-10 bg-gradient-to-br from-brand-700 via-brand-600 to-brand-400" />
+        <div className="container mx-auto py-16 md:py-24 text-white">
+          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight">Advanced DNS Records Checker</h1>
+          <p className="mt-3 md:mt-4 text-white/80 max-w-2xl">Run fast, comprehensive lookups across A, AAAA, MX, TXT, NS, CNAME, PTR, SRV, SOA, CAA, DNSKEY, and DS. Choose resolver, view JSON, and run bulk checks.</p>
+
+          <div className="mt-8 grid gap-3 md:flex md:items-center">
+            <div className="md:w-[440px]">
+              <Input value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="Enter domain (or IP for PTR)" className="bg-white/10 placeholder:text-white/70 text-white border-white/20" />
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <button className={"px-3 py-1.5 rounded-md border border-white/20 "+(provider==="system"?"bg-white/20":"hover:bg-white/10")} onClick={() => setProvider("system")}>System</button>
+              <button className={"px-3 py-1.5 rounded-md border border-white/20 "+(provider==="cloudflare"?"bg-white/20":"hover:bg-white/10")} onClick={() => setProvider("cloudflare")}>Cloudflare</button>
+              <button className={"px-3 py-1.5 rounded-md border border-white/20 "+(provider==="google"?"bg-white/20":"hover:bg-white/10")} onClick={() => setProvider("google")}>Google</button>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button size="lg" onClick={runLookup} disabled={loading} className="bg-white text-brand-800 hover:bg-white/90">{loading ? "Checking…" : "Check DNS"}</Button>
+              <Button size="lg" variant="secondary" onClick={() => setJsonView((v) => !v)}>{jsonView ? "Table View" : "JSON View"}</Button>
+              <Button size="lg" variant="outline" onClick={runWhois}>WHOIS</Button>
+            </div>
+          </div>
+
+          <div className="mt-6 grid grid-cols-2 md:flex md:flex-wrap gap-3 text-sm">
+            <label className="inline-flex items-center gap-2 bg-white/10 rounded-md px-3 py-2 border border-white/10">
+              <Checkbox checked={allChecked} onCheckedChange={(c) => toggleAll(Boolean(c))} />
+              <span>All</span>
+            </label>
+            {ALL_TYPES.map((t) => (
+              <label key={t} className="inline-flex items-center gap-2 bg-white/10 rounded-md px-3 py-2 border border-white/10">
+                <Checkbox checked={selectedTypes.includes(t)} onCheckedChange={(c) => toggleType(t, Boolean(c))} />
+                <span>{t}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="container mx-auto -mt-10 md:-mt-12 pb-16">
+        <Tabs defaultValue="single" className="">
+          <TabsList className="bg-muted/60">
+            <TabsTrigger value="single">Single Lookup</TabsTrigger>
+            <TabsTrigger value="bulk">Bulk Lookup</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="single">
+            <Card className="shadow-xl">
+              <CardHeader>
+                <CardTitle>Results</CardTitle>
+                <CardDescription>Provider: <span className="font-mono">{provider}</span>{result?.domain ? <> · Domain: <span className="font-mono">{result.domain}</span></> : null}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {!result && !whoisData && (
+                  <p className="text-muted-foreground">Run a lookup to see results.</p>
+                )}
+
+                {whoisData && (
+                  <div className="mt-4">
+                    <h3 className="font-semibold mb-2">WHOIS</h3>
+                    <pre className="whitespace-pre-wrap rounded-md bg-muted p-4 text-xs overflow-auto max-h-[420px]">{whoisData}</pre>
+                  </div>
+                )}
+
+                {jsonView && result ? (
+                  <pre className="rounded-md bg-muted p-4 text-xs overflow-auto max-h-[560px]">{JSON.stringify(result, null, 2)}</pre>
+                ) : null}
+
+                {!jsonView && result?.results ? (
+                  <div className="grid gap-6">
+                    {Object.entries(result.results).map(([type, value]) => (
+                      <div key={type}>
+                        <h3 className="font-semibold mb-2">{type}</h3>
+                        <RecordValueTable type={type} value={value} />
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="bulk">
+            <Card className="shadow-xl">
+              <CardHeader>
+                <CardTitle>Bulk Lookup</CardTitle>
+                <CardDescription>Enter one domain per line. Uses the same selected record types.</CardDescription>
+              </CardHeader>
+              <CardContent className="grid gap-4">
+                <Textarea value={bulkInput} onChange={(e) => setBulkInput(e.target.value)} rows={6} placeholder="domain.com\nexample.org" />
+                <div className="flex items-center gap-3">
+                  <Button onClick={runBulk} disabled={bulkLoading}>{bulkLoading ? "Running…" : "Run Bulk"}</Button>
+                </div>
+                {bulkResult ? (
+                  <div className="mt-2 grid gap-6">
+                    {bulkResult.error ? (
+                      <p className="text-destructive">{String(bulkResult.error)}</p>
+                    ) : (
+                      Object.entries<any>(bulkResult.results).map(([d, recordMap]) => (
+                        <div key={d} className="rounded-lg border p-4">
+                          <h3 className="font-semibold mb-2">{d}</h3>
+                          {Object.entries(recordMap as Record<string, unknown>).map(([t, v]) => (
+                            <div key={t} className="mb-4">
+                              <div className="text-sm font-medium mb-1">{t}</div>
+                              <RecordValueTable type={t} value={v} />
+                            </div>
+                          ))}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                ) : null}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </section>
     </div>
   );
+}
+
+function isObject(v: any) {
+  return v && typeof v === "object" && !Array.isArray(v);
+}
+
+function RecordValueTable({ type, value }: { type: string; value: any }) {
+  if (!value) return <p className="text-muted-foreground">No data.</p>;
+  if (value.error) return <p className="text-destructive">{String(value.error)}</p>;
+
+  // Cloudflare/Google DoH returns JSON objects, while system resolver returns arrays/objects.
+  if (typeof value === "string" || typeof value === "number") {
+    return <pre className="text-xs bg-muted rounded-md p-3">{String(value)}</pre>;
+  }
+
+  if (Array.isArray(value)) {
+    const rows = value;
+    return (
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>#</TableHead>
+            <TableHead>Value</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {rows.map((row, idx) => (
+            <TableRow key={idx}>
+              <TableCell className="w-10 text-muted-foreground">{idx + 1}</TableCell>
+              <TableCell>
+                {isObject(row) ? (
+                  <pre className="text-xs bg-muted rounded-md p-2 overflow-auto max-h-52">{JSON.stringify(row, null, 2)}</pre>
+                ) : (
+                  <span className="font-mono">{String(row)}</span>
+                )}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    );
+  }
+
+  if (isObject(value)) {
+    // Likely DoH response
+    const obj = value as Record<string, any>;
+    if (obj.Answer && Array.isArray(obj.Answer)) {
+      return (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>name</TableHead>
+              <TableHead>type</TableHead>
+              <TableHead>TTL</TableHead>
+              <TableHead>data</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {obj.Answer.map((a: any, idx: number) => (
+              <TableRow key={idx}>
+                <TableCell className="font-mono text-xs">{a.name}</TableCell>
+                <TableCell className="font-mono text-xs">{a.type}</TableCell>
+                <TableCell className="font-mono text-xs">{a.TTL}</TableCell>
+                <TableCell className="font-mono text-xs break-all">{a.data}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      );
+    }
+    return <pre className="text-xs bg-muted rounded-md p-3 overflow-auto">{JSON.stringify(value, null, 2)}</pre>;
+  }
+
+  return <pre className="text-xs bg-muted rounded-md p-3">{String(value)}</pre>;
 }
