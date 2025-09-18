@@ -1,5 +1,4 @@
 import { Link as RouterLink, Outlet, useLocation } from "react-router-dom";
-import { Link as RouterLink, Outlet, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 export default function Layout() {
