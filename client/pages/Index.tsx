@@ -8,6 +8,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { ALL_TYPES, type DnsRecordType } from "@/features/dns/types";
 import { resolveDns, bulkResolve, whois } from "@/features/dns/api";
+import { Cloud, Globe, Server } from "lucide-react";
+import { toast } from "sonner";
 
 export default function Index() {
   const [domain, setDomain] = useState("example.com");
@@ -34,39 +36,45 @@ export default function Index() {
   };
 
   const runLookup = async () => {
-    if (!domain) return;
+    if (!domain) return toast.error("Please enter a domain or IP");
     setLoading(true);
     setWhoisData(null);
     try {
       const data = await resolveDns({ domain, types: selectedTypes, provider });
       setResult(data);
     } catch (e) {
-      setResult({ error: String((e as any)?.message || e) });
+      const msg = String((e as any)?.message || e);
+      toast.error(msg);
+      setResult({ error: msg });
     } finally {
       setLoading(false);
     }
   };
   const runWhois = async () => {
-    if (!domain) return;
+    if (!domain) return toast.error("Please enter a domain");
     setLoading(true);
     try {
       const data = await whois(domain);
       setWhoisData(data.raw);
     } catch (e) {
-      setWhoisData(String((e as any)?.message || e));
+      const msg = String((e as any)?.message || e);
+      toast.error(msg);
+      setWhoisData(msg);
     } finally {
       setLoading(false);
     }
   };
   const runBulk = async () => {
     const domains = bulkInput.split(/\s+/).map((d) => d.trim()).filter(Boolean);
-    if (!domains.length) return;
+    if (!domains.length) return toast.error("Enter at least one domain");
     setBulkLoading(true);
     try {
       const data = await bulkResolve({ domains, types: selectedTypes, provider });
       setBulkResult(data);
     } catch (e) {
-      setBulkResult({ error: String((e as any)?.message || e) });
+      const msg = String((e as any)?.message || e);
+      toast.error(msg);
+      setBulkResult({ error: msg });
     } finally {
       setBulkLoading(false);
     }
@@ -76,33 +84,42 @@ export default function Index() {
     <div className="relative">
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10 bg-gradient-to-br from-brand-700 via-brand-600 to-brand-400" />
-        <div className="container mx-auto py-16 md:py-24 text-white">
+        <div className="absolute -z-10 inset-0 opacity-30" aria-hidden>
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[560px] w-[560px] rounded-full bg-white blur-3xl" />
+        </div>
+        <div className="container py-14 md:py-20 text-white">
           <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight">Advanced DNS Records Checker</h1>
           <p className="mt-3 md:mt-4 text-white/80 max-w-2xl">Run fast, comprehensive lookups across A, AAAA, MX, TXT, NS, CNAME, PTR, SRV, SOA, CAA, DNSKEY, and DS. Choose resolver, view JSON, and run bulk checks.</p>
 
-          <div className="mt-8 grid gap-3 md:flex md:items-center">
-            <div className="md:w-[440px]">
-              <Input value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="Enter domain (or IP for PTR)" className="bg-white/10 placeholder:text-white/70 text-white border-white/20" />
+          <div className="mt-8 grid gap-4 md:grid-cols-[minmax(0,440px)_auto_auto] md:items-center">
+            <div className="">
+              <Input value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="Enter domain (or IP for PTR)" className="bg-white/10 placeholder:text-white/70 text-white border-white/20 focus-visible:ring-white/70" />
             </div>
-            <div className="flex items-center gap-2 text-sm">
-              <button className={"px-3 py-1.5 rounded-md border border-white/20 "+(provider==="system"?"bg-white/20":"hover:bg-white/10")} onClick={() => setProvider("system")}>System</button>
-              <button className={"px-3 py-1.5 rounded-md border border-white/20 "+(provider==="cloudflare"?"bg-white/20":"hover:bg-white/10")} onClick={() => setProvider("cloudflare")}>Cloudflare</button>
-              <button className={"px-3 py-1.5 rounded-md border border-white/20 "+(provider==="google"?"bg-white/20":"hover:bg-white/10")} onClick={() => setProvider("google")}>Google</button>
+            <div className="flex items-center gap-1.5 text-sm rounded-lg border border-white/20 p-1 bg-white/10">
+              <button aria-pressed={provider==="system"} className={"inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-colors "+(provider==="system"?"bg-white/20 text-white":"text-white/80 hover:bg-white/10")} onClick={() => setProvider("system")}>
+                <Server className="h-4 w-4" /> System
+              </button>
+              <button aria-pressed={provider==="cloudflare"} className={"inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-colors "+(provider==="cloudflare"?"bg-white/20 text-white":"text-white/80 hover:bg-white/10")} onClick={() => setProvider("cloudflare")}>
+                <Cloud className="h-4 w-4" /> Cloudflare
+              </button>
+              <button aria-pressed={provider==="google"} className={"inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-colors "+(provider==="google"?"bg-white/20 text-white":"text-white/80 hover:bg-white/10")} onClick={() => setProvider("google")}>
+                <Globe className="h-4 w-4" /> Google
+              </button>
             </div>
             <div className="flex items-center gap-2">
-              <Button size="lg" onClick={runLookup} disabled={loading} className="bg-white text-brand-800 hover:bg-white/90">{loading ? "Checking…" : "Check DNS"}</Button>
+              <Button size="lg" onClick={runLookup} disabled={loading} className="bg-white text-brand-800 hover:bg-white/90 shadow-lg">{loading ? "Checking…" : "Check DNS"}</Button>
               <Button size="lg" variant="secondary" onClick={() => setJsonView((v) => !v)}>{jsonView ? "Table View" : "JSON View"}</Button>
               <Button size="lg" variant="outline" onClick={runWhois}>WHOIS</Button>
             </div>
           </div>
 
-          <div className="mt-6 grid grid-cols-2 md:flex md:flex-wrap gap-3 text-sm">
-            <label className="inline-flex items-center gap-2 bg-white/10 rounded-md px-3 py-2 border border-white/10">
+          <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 text-sm">
+            <label className="inline-flex items-center gap-2 bg-white/10 rounded-md px-3 py-2 border border-white/10 hover:bg-white/15">
               <Checkbox checked={allChecked} onCheckedChange={(c) => toggleAll(Boolean(c))} />
               <span>All</span>
             </label>
             {ALL_TYPES.map((t) => (
-              <label key={t} className="inline-flex items-center gap-2 bg-white/10 rounded-md px-3 py-2 border border-white/10">
+              <label key={t} className="inline-flex items-center gap-2 bg-white/10 rounded-md px-3 py-2 border border-white/10 hover:bg-white/15">
                 <Checkbox checked={selectedTypes.includes(t)} onCheckedChange={(c) => toggleType(t, Boolean(c))} />
                 <span>{t}</span>
               </label>
@@ -125,7 +142,13 @@ export default function Index() {
                 <CardDescription>Provider: <span className="font-mono">{provider}</span>{result?.domain ? <> · Domain: <span className="font-mono">{result.domain}</span></> : null}</CardDescription>
               </CardHeader>
               <CardContent>
-                {!result && !whoisData && (
+                {loading && (
+                  <div className="space-y-3">
+                    <div className="h-4 w-40 bg-muted rounded animate-pulse" />
+                    <div className="h-32 bg-muted rounded animate-pulse" />
+                  </div>
+                )}
+                {!loading && !result && !whoisData && (
                   <p className="text-muted-foreground">Run a lookup to see results.</p>
                 )}
 
