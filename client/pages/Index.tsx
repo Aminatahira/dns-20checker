@@ -84,46 +84,46 @@ export default function Index() {
           <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight">Advanced DNS Records Checker</h1>
           <p className="mt-3 md:mt-4 text-white/80 max-w-2xl">Run fast, comprehensive lookups across A, AAAA, MX, TXT, NS, CNAME, PTR, SRV, SOA, CAA, DNSKEY, and DS. Choose resolver and run bulk checks.</p>
 
-          <div className="mt-8 grid gap-4 md:grid-cols-[minmax(0,440px)_auto_auto] md:items-center">
-            <div className="">
+          <div className="mt-8 grid gap-4">
+            <div className="grid gap-3 md:grid-cols-[minmax(0,440px)_220px] md:items-center">
               <Input value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="Enter domain (or IP for PTR)" className="bg-white/10 placeholder:text-white/70 text-white border-white/20 focus-visible:ring-white/70" />
+              <Select
+                value={allChecked ? "ALL" : (selectedTypes[0] ?? "A")}
+                onValueChange={(val) => {
+                  if (val === "ALL") setSelectedTypes([...ALL_TYPES]);
+                  else setSelectedTypes([val as DnsRecordType]);
+                }}
+              >
+                <SelectTrigger className="w-full bg-white/10 border-white/20 text-white">
+                  <SelectValue placeholder="Record type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All types</SelectItem>
+                  {ALL_TYPES.map((t) => (
+                    <SelectItem key={t} value={t}>{t}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-            <div className="flex items-center gap-1.5 text-sm rounded-lg border border-white/20 p-1 bg-white/10">
-              <button aria-pressed={provider==="system"} className={"inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-colors "+(provider==="system"?"bg-white/20 text-white":"text-white/80 hover:bg-white/10")} onClick={() => setProvider("system")}>
-                <Server className="h-4 w-4" /> System
-              </button>
-              <button aria-pressed={provider==="cloudflare"} className={"inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-colors "+(provider==="cloudflare"?"bg-white/20 text-white":"text-white/80 hover:bg-white/10")} onClick={() => setProvider("cloudflare")}>
-                <Cloud className="h-4 w-4" /> Cloudflare
-              </button>
-              <button aria-pressed={provider==="google"} className={"inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-colors "+(provider==="google"?"bg-white/20 text-white":"text-white/80 hover:bg-white/10")} onClick={() => setProvider("google")}>
-                <Globe className="h-4 w-4" /> Google
-              </button>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button size="lg" onClick={runLookup} disabled={loading} className="bg-white text-brand-800 hover:bg-white/90 shadow-lg">{loading ? "Checking…" : "Check DNS"}</Button>
-              <Button size="lg" variant="outline" onClick={runWhois}>WHOIS</Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-1.5 text-sm rounded-lg border border-white/20 p-1 bg-white/10">
+                <button aria-pressed={provider==="system"} className={"inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-colors "+(provider==="system"?"bg-white/20 text-white":"text-white/80 hover:bg-white/10")} onClick={() => setProvider("system")}>
+                  <Server className="h-4 w-4" /> System
+                </button>
+                <button aria-pressed={provider==="cloudflare"} className={"inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-colors "+(provider==="cloudflare"?"bg-white/20 text-white":"text-white/80 hover:bg-white/10")} onClick={() => setProvider("cloudflare")}>
+                  <Cloud className="h-4 w-4" /> Cloudflare
+                </button>
+                <button aria-pressed={provider==="google"} className={"inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-colors "+(provider==="google"?"bg-white/20 text-white":"text-white/80 hover:bg-white/10")} onClick={() => setProvider("google")}>
+                  <Globe className="h-4 w-4" /> Google
+                </button>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button size="lg" onClick={runLookup} disabled={loading} className="bg-white text-brand-800 hover:bg-white/90 shadow-lg">{loading ? "Checking…" : "Check DNS"}</Button>
+                <Button size="lg" variant="outline" className="bg-white text-black hover:bg-white/90" onClick={runWhois}>WHOIS</Button>
+              </div>
             </div>
           </div>
 
-          <div className="mt-6">
-            <Select
-              value={allChecked ? "ALL" : (selectedTypes[0] ?? "A")}
-              onValueChange={(val) => {
-                if (val === "ALL") setSelectedTypes([...ALL_TYPES]);
-                else setSelectedTypes([val as DnsRecordType]);
-              }}
-            >
-              <SelectTrigger className="w-56 bg-white/10 border-white/20 text-white">
-                <SelectValue placeholder="Record type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">All types</SelectItem>
-                {ALL_TYPES.map((t) => (
-                  <SelectItem key={t} value={t}>{t}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
         </div>
       </section>
 
