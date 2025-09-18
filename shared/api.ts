@@ -10,3 +10,45 @@
 export interface DemoResponse {
   message: string;
 }
+
+export type DnsRecordType =
+  | "A"
+  | "AAAA"
+  | "CNAME"
+  | "MX"
+  | "NS"
+  | "TXT"
+  | "SRV"
+  | "SOA"
+  | "CAA"
+  | "PTR"
+  | "DNSKEY"
+  | "DS";
+
+export interface ResolveQuery {
+  domain: string;
+  types: DnsRecordType[];
+  provider?: "system" | "cloudflare" | "google";
+}
+
+export interface ResolveResponse {
+  domain: string;
+  provider: string;
+  results: Record<string, unknown>;
+}
+
+export interface BulkResolveBody {
+  domains: string[];
+  types: DnsRecordType[];
+  provider?: "system" | "cloudflare" | "google";
+}
+
+export interface BulkResolveResponse {
+  provider: string;
+  results: Record<string, Record<string, unknown>>;
+}
+
+export interface WhoisResponse {
+  server?: string;
+  raw: string;
+}
