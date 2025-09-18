@@ -157,11 +157,7 @@ export default function Index() {
                   </div>
                 )}
 
-                {jsonView && result ? (
-                  <pre className="rounded-md bg-muted p-4 text-xs overflow-auto max-h-[560px]">{JSON.stringify(result, null, 2)}</pre>
-                ) : null}
-
-                {!jsonView && result?.results ? (
+                {result?.results ? (
                   <div className="grid gap-6">
                     {Object.entries(result.results).map(([type, value]) => (
                       <div key={type}>
