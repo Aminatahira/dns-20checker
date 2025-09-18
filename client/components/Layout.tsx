@@ -1,6 +1,6 @@
 import { Link, Outlet, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 export default function Layout() {
   const location = useLocation();
