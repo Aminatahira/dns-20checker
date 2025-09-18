@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ALL_TYPES, type DnsRecordType } from "@/features/dns/types";
 import { resolveDns, bulkResolve, whois } from "@/features/dns/api";
 import { Cloud, Globe, Server } from "lucide-react";
@@ -111,17 +112,25 @@ export default function Index() {
             </div>
           </div>
 
-          <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 text-sm">
-            <label className="inline-flex items-center gap-2 bg-white/10 rounded-md px-3 py-2 border border-white/10 hover:bg-white/15">
-              <Checkbox checked={allChecked} onCheckedChange={(c) => toggleAll(Boolean(c))} />
-              <span>All</span>
-            </label>
-            {ALL_TYPES.map((t) => (
-              <label key={t} className="inline-flex items-center gap-2 bg-white/10 rounded-md px-3 py-2 border border-white/10 hover:bg-white/15">
-                <Checkbox checked={selectedTypes.includes(t)} onCheckedChange={(c) => toggleType(t, Boolean(c))} />
-                <span>{t}</span>
-              </label>
-            ))}
+          <div className="mt-6">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="secondary" className="bg-white/10 hover:bg-white/15 text-white border border-white/20">
+                  Record types ({selectedTypes.length}/{ALL_TYPES.length})
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="start">
+                <DropdownMenuCheckboxItem checked={allChecked} onCheckedChange={(c) => toggleAll(Boolean(c))}>
+                  All
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuSeparator />
+                {ALL_TYPES.map((t) => (
+                  <DropdownMenuCheckboxItem key={t} checked={selectedTypes.includes(t)} onCheckedChange={(c) => toggleType(t, Boolean(c))}>
+                    {t}
+                  </DropdownMenuCheckboxItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </section>
