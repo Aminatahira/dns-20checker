@@ -17,7 +17,6 @@ export default function Index() {
   const [provider, setProvider] = useState<"system" | "cloudflare" | "google">("system");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any | null>(null);
-  const [jsonView, setJsonView] = useState(false);
   const [whoisData, setWhoisData] = useState<string | null>(null);
 
   const [bulkInput, setBulkInput] = useState("google.com\ncloudflare.com\nopenai.com");
