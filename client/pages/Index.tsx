@@ -1,12 +1,11 @@
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ALL_TYPES, type DnsRecordType } from "@/features/dns/types";
 import { resolveDns, bulkResolve, whois } from "@/features/dns/api";
 import { Cloud, Globe, Server } from "lucide-react";
@@ -28,12 +27,6 @@ export default function Index() {
     () => selectedTypes.length === ALL_TYPES.length,
     [selectedTypes],
   );
-  const toggleAll = (checked: boolean) => {
-    setSelectedTypes(checked ? [...ALL_TYPES] as DnsRecordType[] : []);
-  };
-  const toggleType = (t: DnsRecordType, checked: boolean) => {
-    setSelectedTypes((prev) => checked ? Array.from(new Set([...prev, t])) as DnsRecordType[] : prev.filter((x) => x !== t));
-  };
 
   const runLookup = async () => {
     if (!domain) return toast.error("Please enter a domain or IP");
@@ -113,24 +106,23 @@ export default function Index() {
           </div>
 
           <div className="mt-6">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="secondary" className="bg-white/10 hover:bg-white/15 text-white border border-white/20">
-                  Record types ({selectedTypes.length}/{ALL_TYPES.length})
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="start">
-                <DropdownMenuCheckboxItem checked={allChecked} onCheckedChange={(c) => toggleAll(Boolean(c))}>
-                  All
-                </DropdownMenuCheckboxItem>
-                <DropdownMenuSeparator />
+            <Select
+              value={allChecked ? "ALL" : (selectedTypes[0] ?? "A")}
+              onValueChange={(val) => {
+                if (val === "ALL") setSelectedTypes([...ALL_TYPES]);
+                else setSelectedTypes([val as DnsRecordType]);
+              }}
+            >
+              <SelectTrigger className="w-56 bg-white/10 border-white/20 text-white">
+                <SelectValue placeholder="Record type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">All types</SelectItem>
                 {ALL_TYPES.map((t) => (
-                  <DropdownMenuCheckboxItem key={t} checked={selectedTypes.includes(t)} onCheckedChange={(c) => toggleType(t, Boolean(c))}>
-                    {t}
-                  </DropdownMenuCheckboxItem>
+                  <SelectItem key={t} value={t}>{t}</SelectItem>
                 ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </section>
