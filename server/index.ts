@@ -19,5 +19,12 @@ export function createServer() {
 
   app.get("/api/demo", handleDemo);
 
+  // DNS API
+  const { handleResolve, handleBulk, handleWhois, handleDoh } = await import("./routes/dns");
+  app.get("/api/dns/resolve", handleResolve);
+  app.post("/api/dns/bulk", handleBulk);
+  app.get("/api/dns/whois", handleWhois);
+  app.get("/api/dns/doh", handleDoh);
+
   return app;
 }
