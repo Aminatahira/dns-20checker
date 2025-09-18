@@ -280,7 +280,7 @@ function RecordValueTable({ type, value }: { type: string; value: any }) {
         </Table>
       );
     }
-    return <pre className="text-xs bg-muted rounded-md p-3 overflow-auto">{JSON.stringify(value, null, 2)}</pre>;
+    return <KV obj={obj} />;
   }
 
   return <pre className="text-xs bg-muted rounded-md p-3">{String(value)}</pre>;
