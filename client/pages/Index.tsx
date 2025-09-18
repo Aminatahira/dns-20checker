@@ -107,7 +107,6 @@ export default function Index() {
             </div>
             <div className="flex items-center gap-2">
               <Button size="lg" onClick={runLookup} disabled={loading} className="bg-white text-brand-800 hover:bg-white/90 shadow-lg">{loading ? "Checking…" : "Check DNS"}</Button>
-              <Button size="lg" variant="secondary" onClick={() => setJsonView((v) => !v)}>{jsonView ? "Table View" : "JSON View"}</Button>
               <Button size="lg" variant="outline" onClick={runWhois}>WHOIS</Button>
             </div>
           </div>
