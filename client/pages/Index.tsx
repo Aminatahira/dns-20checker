@@ -220,7 +220,7 @@ function RecordValueTable({ type, value }: { type: string; value: any }) {
 
   // Cloudflare/Google DoH returns JSON objects, while system resolver returns arrays/objects.
   if (typeof value === "string" || typeof value === "number") {
-    return <pre className="text-xs bg-muted rounded-md p-3">{String(value)}</pre>;
+    return <span className="font-mono text-sm">{String(value)}</span>;
   }
 
   if (Array.isArray(value)) {
