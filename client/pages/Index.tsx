@@ -88,7 +88,7 @@ export default function Index() {
         </div>
         <div className="container py-14 md:py-20 text-white">
           <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight">Advanced DNS Records Checker</h1>
-          <p className="mt-3 md:mt-4 text-white/80 max-w-2xl">Run fast, comprehensive lookups across A, AAAA, MX, TXT, NS, CNAME, PTR, SRV, SOA, CAA, DNSKEY, and DS. Choose resolver, view JSON, and run bulk checks.</p>
+          <p className="mt-3 md:mt-4 text-white/80 max-w-2xl">Run fast, comprehensive lookups across A, AAAA, MX, TXT, NS, CNAME, PTR, SRV, SOA, CAA, DNSKEY, and DS. Choose resolver and run bulk checks.</p>
 
           <div className="mt-8 grid gap-4 md:grid-cols-[minmax(0,440px)_auto_auto] md:items-center">
             <div className="">
