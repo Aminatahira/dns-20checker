@@ -283,5 +283,28 @@ function RecordValueTable({ type, value }: { type: string; value: any }) {
     return <KV obj={obj} />;
   }
 
-  return <pre className="text-xs bg-muted rounded-md p-3">{String(value)}</pre>;
+  return <span className="font-mono text-sm">{String(value)}</span>;
+}
+
+function KV({ obj }: { obj: Record<string, any> }) {
+  const entries = Object.entries(obj);
+  if (!entries.length) return <span className="text-muted-foreground">No data.</span>;
+  return (
+    <div className="grid grid-cols-[140px_1fr] gap-x-4 gap-y-1 text-xs">
+      {entries.map(([k, v], i) => (
+        <div key={k + i} className="contents">
+          <div className="text-muted-foreground">{k}</div>
+          <div className="font-mono break-all">
+            {Array.isArray(v)
+              ? v.join(", ")
+              : isObject(v)
+              ? Object.entries(v as any)
+                  .map(([ik, iv]) => `${ik}=${String(iv)}`)
+                  .join(", ")
+              : String(v)}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 }
