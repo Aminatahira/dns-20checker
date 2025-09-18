@@ -238,10 +238,12 @@ function RecordValueTable({ type, value }: { type: string; value: any }) {
             <TableRow key={idx}>
               <TableCell className="w-10 text-muted-foreground">{idx + 1}</TableCell>
               <TableCell>
-                {isObject(row) ? (
-                  <pre className="text-xs bg-muted rounded-md p-2 overflow-auto max-h-52">{JSON.stringify(row, null, 2)}</pre>
+                {Array.isArray(row) ? (
+                  <span className="font-mono text-sm break-all">{row.join("")}</span>
+                ) : isObject(row) ? (
+                  <KV obj={row} />
                 ) : (
-                  <span className="font-mono">{String(row)}</span>
+                  <span className="font-mono text-sm break-all">{String(row)}</span>
                 )}
               </TableCell>
             </TableRow>
