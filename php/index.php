@@ -46,7 +46,25 @@ if($action==='bulk'&&$bulk!==''){ $domains=preg_split('/\s+/', $bulk,-1,PREG_SPL
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/styles.css" />
+  <link rel="stylesheet" href="<?= h(asset_url('assets/styles.css')) ?>" />
+  <style>
+    :root{--brand-700:258 80% 48%;--brand-600:258 85% 54%}
+    body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif}
+    .brand-logo{width:32px;height:32px;background:linear-gradient(135deg,hsl(var(--brand-600)),hsl(var(--brand-700)));color:#fff;font-weight:800}
+    .font-mono,.font-monospace{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+  </style>
+  <script>
+    (function(){
+      function injectLocal(){
+        var l=document.createElement('link');l.rel='stylesheet';l.href='<?= h(asset_url('assets/bootstrap.min.css')) ?>';document.head.appendChild(l);
+      }
+      function check(){
+        var v=getComputedStyle(document.documentElement).getPropertyValue('--bs-body-font-family');
+        if(!v||!v.trim()){injectLocal();}
+      }
+      if(document.readyState!=='loading'){check();} else {document.addEventListener('DOMContentLoaded',check);}
+    })();
+  </script>
 </head>
 <body>
   <nav class="navbar navbar-expand bg-body bg-opacity-75 border-bottom sticky-top">
