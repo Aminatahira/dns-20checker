@@ -1,6 +1,33 @@
 /* DNS Suite Bootstrap add-ons */
-:root{--brand-700: 258 80% 48%;--brand-600: 258 85% 54%;}
-body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif}
-.brand-logo{width:32px;height:32px;background:linear-gradient(135deg,hsl(var(--brand-600)),hsl(var(--brand-700)));color:#fff;font-weight:800}
+:root {
+  --brand-700: 258 80% 48%;
+  --brand-600: 258 85% 54%;
+}
+body {
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Ubuntu,
+    Cantarell,
+    Noto Sans,
+    sans-serif;
+}
+.brand-logo {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(
+    135deg,
+    hsl(var(--brand-600)),
+    hsl(var(--brand-700))
+  );
+  color: #fff;
+  font-weight: 800;
+}
 /* Keep custom monospace helper */
-.font-mono, .font-monospace{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+.font-mono,
+.font-monospace {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
