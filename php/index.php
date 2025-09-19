@@ -217,7 +217,14 @@ if($action==='bulk'&&$bulk!==''){ $domains=preg_split('/\s+/', $bulk,-1,PREG_SPL
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="assets/app.js"></script>
+  <script>(function(){if(!window.bootstrap){var s=document.createElement('script');s.src='<?= h(asset_url('assets/bootstrap.bundle.min.js')) ?>';document.body.appendChild(s);}})();</script>
+  <script src="<?= h(asset_url('assets/app.js')) ?>"></script>
+  <script>
+    (function(){
+      const tabs=document.getElementById('dnsTabs');if(!tabs)return;const single=document.getElementById('tab-single');const bulk=document.getElementById('tab-bulk');
+      tabs.addEventListener('click',function(e){var btn=e.target.closest('[data-tab]');if(!btn)return;var tab=btn.getAttribute('data-tab');tabs.querySelectorAll('.nav-link').forEach(function(el){el.classList.remove('active');});btn.classList.add('active');if(tab==='single'){single.classList.add('show','active');bulk.classList.remove('show','active');}else{bulk.classList.add('show','active');single.classList.remove('show','active');}});
+    })();
+  </script>
 </body>
 </html>
 <?php
