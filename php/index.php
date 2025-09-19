@@ -4,6 +4,10 @@
 
 function h($v){return htmlspecialchars((string)$v,ENT_QUOTES,'UTF-8');}
 function is_ip($s){return filter_var($s,FILTER_VALIDATE_IP)!==false;}
+function asset_url($path){
+  $base = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
+  return ($base?:'').'/'.ltrim($path,'/');
+}
 
 function doh_query($name,$type,$provider='cloudflare'){
   $type=strtoupper($type);$provider=strtolower($provider);
